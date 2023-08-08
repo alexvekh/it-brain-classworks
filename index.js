@@ -205,10 +205,10 @@ class TextEditor {
     return this.#text;
   }
   #save() {
-    Snapchot.create(this.text);
+    Snapshot.create(this.#text);
   }
   restore() {
-    this.#text = Snapchot.restore().text;
+    this.#text = Snapshot.restore().text; // ? no .text;
   }
 }
 
@@ -244,10 +244,10 @@ console.log(editor.text);
 class AuthHandler {
   setNextHandler(handler) {
     this.setNextHandler = handler;
-    return handler
+    return handler;
   }
   login(user, password) {
-    if (this.setNextHandler {
+    if (this.setNextHandler) {
       return this.setNextHandler.login(user, password);
     } else return false;
   }
@@ -269,8 +269,124 @@ class TwoFactorAuthHandler extends AuthHandler {
 
 const handler = new TwoFactorAuthHandler();
 handler.setNextHandler({
-  login: (...arg) => {console.log(arg)}
-})
+  login: (...arg) => {
+    console.log(arg);
+  },
+});
 
 handler.login("login", "password");
 
+//  ------------------------------------------------------------
+// Strategy
+class ShopingCart {
+  constructor(discountStrategy) {
+    this.discountStrategy = discountStrategy;
+  }
+
+  items = [];
+
+  addItem(item) {
+    this.items.push(item);
+  }
+
+  // discountStrategy(price) {
+  //   return price > 100 ? price * 0.9 : price;
+  // }
+
+  calculateTolalPrice() {
+    let totalPrice = 0;
+    for (const item of this.items) {
+      totalPrice += item.price;
+    }
+
+    return this.discountStrategy.calculateDiscount(totalPrice);
+  }
+}
+
+class DiscountStrategy {
+  calculateDiscount(price) {
+    return price;
+  }
+}
+// Стратегія знижки для звичайних кліентів
+class RegularDiscountStrategy extends DiscountStrategy {
+  calculateDiscount(price) {
+    return price * 0.9; // 10 % знижки
+  }
+}
+
+// Стратегія знижки для преміум кліентів
+class PremiumDiscountStrategy extends DiscountStrategy {
+  calculateDiscount(price) {
+    return price * 0.8; // 20 % знижки
+  }
+}
+// Стратегія знижки для нових кліентів
+class NewCustomerDiscountStrategy extends DiscountStrategy {
+  calculateDiscount(price) {
+    return price * 0.7; // 30 % знижки
+  }
+}
+const shopingCart1 = new ShopingCart(new RegularDiscountStrategy());
+
+shopingCart1.addItem({ name: "Product 1", price: 100 });
+shopingCart1.addItem({ name: "Product 2", price: 50 });
+console.log(shopingCart1.calculateTolalPrice());
+
+// -----------------------------------------------------------------------
+// Iterator
+
+class Usr {
+  constructor(name, email, password) {
+    this.name = name;
+    this.email = email;
+    this.password = password;
+  }
+}
+
+class UserGroup {
+  users = [];
+
+  addUser(user) {
+    this.users.push(user);
+  }
+}
+
+class UserIterator {
+  #users = null;
+  #currentIndex = 0;
+  constructor(userGroup) {
+    //this.#names = userGroup.map((user) => user.name);
+    this.#users = userGroup.users;
+  }
+  #hasNext() {
+    return this.#currentIndex < this.#users.length;
+  }
+  // Метод, який повертає наступний елемент
+  next() {
+    if (this.#hasNext()) {
+      const name = this.#users[this.#currentIndex].name;
+      this.#currentIndex++;
+      return name;
+    }
+    return null;
+  }
+
+  list() {
+    return this.#users.map((user) => user.name).join(", ");
+  }
+}
+
+const group = new UserGroup();
+group.addUser(new Usr("john Doe", "john@exemple.com", "password1"));
+//const group2 = new UserGroup();
+group.addUser(new Usr("Jane Smith", "jane@exemple.com", "password2"));
+console.log(group.users);
+console.log(group.users.map((user) => user.name).join(", "));
+
+const iterator = new UserIterator(group);
+console.log(iterator.next());
+console.log(iterator.next());
+console.log(iterator.next());
+
+console.log(iterator.list());
