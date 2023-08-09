@@ -168,3 +168,21 @@ Promise.allSettled([loadFile("example.txt"), getInfoFromFile("example.txt"), sav
   .catch((error) => {
     console.log(error);
   });
+
+const loadAndSendFile = () =>
+  loadFile()
+    .then((data) => sendFileToData(data))
+    .finally(() => console.log("Файл відправлено"));
+
+const loadAndSendFile2 = async () => {
+  try {
+    const data = await loadFile();
+    await sendFileToData(data);
+  } catch (e) {
+    console.log(e);
+  } finally {
+    console.log("Файл відправлено");
+  }
+};
+
+loadAndSendFile2();
